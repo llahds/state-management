@@ -1,4 +1,8 @@
-﻿public interface IHandler
+﻿
+namespace Streams.Events.Handlers
 {
-    Task Handle(Event evt);
+    public interface IHandler
+    {
+        Task Handle(Event evt);
+    }
 }

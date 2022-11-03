@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 
-public interface IFilter
+namespace Streams.Events.Filters
 {
-    ValueTask<bool> Evaluate(JObject evt);
+    public interface IFilter
+    {
+        ValueTask<bool> Evaluate(JObject evt);
+    }
 }

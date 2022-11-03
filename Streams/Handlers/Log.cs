@@ -1,9 +1,19 @@
-﻿public class Log : IHandler
+﻿namespace Streams.Events.Handlers
 {
-    public Task Handle(Event evt)
+    public class Log : IHandler
     {
-        Console.WriteLine(evt.Payload.ToString());
+        private readonly Action<Event> action;
 
-        return Task.CompletedTask;
+        public Log(Action<Event> action)
+        {
+            this.action = action;
+        }
+
+        public Task Handle(Event evt)
+        {
+            this.action(evt);
+
+            return Task.CompletedTask;
+        }
     }
 }

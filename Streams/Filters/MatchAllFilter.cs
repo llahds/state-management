@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json.Linq;
 
-public class MatchAllFilter : IFilter
+namespace Streams.Events.Filters
 {
-    public ValueTask<bool> Evaluate(JObject evt)
+    public class MatchAllFilter : IFilter
     {
-        return ValueTask.FromResult(true);
+        public ValueTask<bool> Evaluate(JObject evt)
+        {
+            return ValueTask.FromResult(true);
+        }
     }
 }

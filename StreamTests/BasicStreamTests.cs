@@ -98,5 +98,72 @@ namespace StreamTests
 
             Assert.IsTrue(evt.Payload["customerId"].Value<int>() == 2);
         }
+
+        [TestMethod]
+        public async Task Join_Emits_Expected_Value()
+        {
+            var left = new EventStream(
+                store: new TimeWindow(new TimeSpan(0, 0, 1, 0, 0)),
+                filter: new MatchAllFilter()
+            );
+
+            var right = new EventStream(
+                store: new TimeWindow(new TimeSpan(0, 0, 1, 0, 0)),
+                filter: new MatchAllFilter()
+            );
+
+            var merged = await left.Join(
+                right, 
+                left => left["id"].Value<int>(), 
+                right => right["id"].Value<int>(), 
+                (left, right) => JObject.FromObject(new { left = left, right = right }),
+                new TimeSpan(1, 0, 0, 0)
+            );
+
+            Event evt = null;
+            await merged.Subscribe(new Log(E => evt = E));
+
+            Assert.IsNotNull(merged);
+
+            await left.Emit(JObject.FromObject(new { id = 1 }));
+            await right.Emit(JObject.FromObject(new { id = 1 }));
+
+            Assert.IsTrue(evt.Payload["left"]["id"].Value<int>() == evt.Payload["right"]["id"].Value<int>());
+        }
+
+        [TestMethod]
+        public async Task Join_With_Delay_Emits_Expected_Value()
+        {
+            var left = new EventStream(
+                store: new TimeWindow(new TimeSpan(0, 0, 1, 0, 0)),
+                filter: new MatchAllFilter()
+            );
+
+            var right = new EventStream(
+                store: new TimeWindow(new TimeSpan(0, 0, 1, 0, 0)),
+                filter: new MatchAllFilter()
+            );
+
+            var merged = await left.Join(
+                right,
+                left => left["id"].Value<int>(),
+                right => right["id"].Value<int>(),
+                (left, right) => JObject.FromObject(new { left = left, right = right }),
+                new TimeSpan(0, 0, 0, 0, 1)
+            );
+
+            Event evt = null;
+            await merged.Subscribe(new Log(E => evt = E));
+
+            Assert.IsNotNull(merged);
+
+            await left.Emit(JObject.FromObject(new { id = 1 }));
+            
+            await Task.Delay(2);
+
+            await right.Emit(JObject.FromObject(new { id = 1 }));
+
+            Assert.IsNull(evt);
+        }
     }
 }

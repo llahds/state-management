@@ -25,5 +25,28 @@ namespace Streams.Events
 
             return selectStream;
         }
+
+        public static async Task<EventStream> Join(
+            this EventStream left, 
+            EventStream right, 
+            Func<JObject, object> leftKeyExtractor, 
+            Func<JObject, object> rightKeyExtractor, 
+            Func<JObject, JObject, JObject> transform,
+            TimeSpan validFor)
+        {
+            var mergeStream = new EventStream(new EmptyWindow(), new MatchAllFilter());
+
+            var joinHandler = new Join(
+                mergeStream, 
+                leftKeyExtractor, 
+                rightKeyExtractor, 
+                transform,
+                left,
+                right,
+                validFor
+            );
+
+            return mergeStream;
+        }
     }
 }

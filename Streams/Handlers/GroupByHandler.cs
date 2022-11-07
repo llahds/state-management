@@ -29,7 +29,6 @@ namespace Streams.Events.Handlers
             var key = this.keyExtractor(evt.Payload);
             var events = new JObject[0];
 
-//             
             await this.locks.Wait(key);
 
             try
@@ -41,7 +40,6 @@ namespace Streams.Events.Handlers
 
                 var group = this.groups[key];
 
-                // evict expired events
                 var ids = group.ToArray();
                 var checkIds = await Task.WhenAll(ids.Select(T => this.store.IsValid(T)));
 

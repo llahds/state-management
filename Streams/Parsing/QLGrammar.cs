@@ -57,16 +57,22 @@ namespace Streams.Parsing
             var filterExpressionList = new NonTerminal("FILTER_EXPRESSION_LIST");
             var filterOperator = ToTerm("=") | ">" | "<";
             var filterValue = stringValue | numberValue;
+            var window = new NonTerminal("WINDOW");
+            var timespan = new NonTerminal("TIME_SPAN");
+            var timespanUnit = new NonTerminal("TIME_SPAN_UNIT");
+
+            timespanUnit.Rule = ToTerm("days") | "hours" | "minutes" | "seconds" | "milliseconds";
+            timespan.Rule = numberValue + timespanUnit;
+            window.Rule = ToTerm("keep last") + timespan;
 
             filterExpression.Rule = id + filterOperator + filterValue;
             filterExpressionList.Rule = this.MakePlusRule(filterExpressionList, boolean, filterExpression);
-            //filter.Rule = ToTerm("[") + filterExpressionList + "]" | Empty;
             filter.Rule = ToTerm("[") + filterExpressionList + "]" | Empty;
 
             joinOn.Rule = field + "=" + field;
             joinOnList.Rule = this.MakePlusRule(joinOnList, boolean, joinOn);
-            from.Rule = ToTerm("from") + id + filter;
-            join.Rule = ToTerm("join") + id + filter + "on" + joinOnList;
+            from.Rule = ToTerm("from") + id + filter + window;
+            join.Rule = ToTerm("join") + id + filter + window + "on" + joinOnList;
             joinList.Rule = MakeStarRule(joinList, join) | Empty;
 
             // select clause - parses "{from clause} select foo.id, foo.field2"
@@ -74,6 +80,8 @@ namespace Streams.Parsing
             var selectFields = new NonTerminal("SELECT_FIELDS");
             selectFields.Rule = this.MakePlusRule(selectFields, comma, field);
             select.Rule = ToTerm("SELECT") + selectFields;
+
+
 
             // into clause - parses "{from clause} {select clause} into foo (field1, field2, field3)"
             var into = new NonTerminal("INTO");

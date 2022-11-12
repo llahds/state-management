@@ -45,7 +45,7 @@ namespace StreamTests
         [TestMethod]
         public void Query_With_One_Join_Parses_Correctly()
         {
-            var statement = "from foo [foo = 1 and foo2 = '3'] select foo.id into foo2 (id)";
+            var statement = "from foo [foo = 1 and foo2 = '3'] keep last 1 days select foo.id into foo2 (id)";
             var parser = new Parser(new QLGrammar());
             var parse = parser.Parse(statement);
             Assert.IsFalse(parse.HasErrors());
@@ -54,7 +54,7 @@ namespace StreamTests
         [TestMethod]
         public void Query_With_Multiple_Joins_Parses_Correctly()
         {
-            var statement = "from foo join foo2 on foo.id = foo2.id join foo3 on foo2.id = foo3.id and foo2.id2 = foo3.id2 select foo.id, foo.id2 into foo (field1, field2)";
+            var statement = "from foo keep last 1 hours join foo2 keep last 1 days on foo.id = foo2.id join foo3 keep last 25.2 milliseconds on foo2.id = foo3.id and foo2.id2 = foo3.id2 select foo.id, foo.id2 into foo (field1, field2)";
             var parser = new Parser(new QLGrammar());
             var parse = parser.Parse(statement);
             Assert.IsFalse(parse.HasErrors());
@@ -63,7 +63,8 @@ namespace StreamTests
         [TestMethod]
         public void Query_With_Multiple_Statements_Parses_Correctly()
         {
-            var statement = "from foo select foo.id into foo2 (id); from foo join foo2 on foo.id = foo2.id join foo3 on foo2.id = foo3.id and foo2.id2 = foo3.id2 select foo.id, foo.id2 into foo (field1, field2);";
+            var statement = @"from foo keep last 2 minutes select foo.id into foo2 (id); 
+from foo keep last 2 minutes join foo2 keep last 2 hours on foo.id = foo2.id join foo3 keep last 2 seconds on foo2.id = foo3.id and foo2.id2 = foo3.id2 select foo.id, foo.id2 into foo (field1, field2);";
             var parser = new Parser(new QLGrammar());
             var parse = parser.Parse(statement);
             Assert.IsFalse(parse.HasErrors());

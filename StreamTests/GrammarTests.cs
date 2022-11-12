@@ -69,5 +69,14 @@ from foo keep last 2 minutes join foo2 keep last 2 hours on foo.id = foo2.id joi
             var parse = parser.Parse(statement);
             Assert.IsFalse(parse.HasErrors());
         }
+
+        [TestMethod]
+        public void Query_With_Group_By_Parses_Correctly()
+        {
+            var statement = @"from foo keep last 2 minutes select foo.id group by foo.id, foo.field2 into foo2 (id); ";
+            var parser = new Parser(new QLGrammar());
+            var parse = parser.Parse(statement);
+            Assert.IsFalse(parse.HasErrors());
+        }
     }
 }

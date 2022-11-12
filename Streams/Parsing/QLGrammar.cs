@@ -81,7 +81,11 @@ namespace Streams.Parsing
             selectFields.Rule = this.MakePlusRule(selectFields, comma, field);
             select.Rule = ToTerm("SELECT") + selectFields;
 
-
+            // group by
+            var groupBy = new NonTerminal("GROUP_BY");
+            var groupByFields = new NonTerminal("GROUP_BY_FIELDS");
+            groupByFields.Rule = this.MakePlusRule(groupByFields, comma, field);
+            groupBy.Rule = Empty | ToTerm("group by") + groupByFields;
 
             // into clause - parses "{from clause} {select clause} into foo (field1, field2, field3)"
             var into = new NonTerminal("INTO");
@@ -89,7 +93,7 @@ namespace Streams.Parsing
             intoFieldList.Rule = this.MakePlusRule(intoFieldList, comma, id);
             into.Rule = ToTerm("INTO") + id + "(" + intoFieldList + ")";
 
-            query.Rule = from + joinList + select + into + statementDelimiter;
+            query.Rule = from + joinList + select + groupBy + into + statementDelimiter;
         }
     }
 }

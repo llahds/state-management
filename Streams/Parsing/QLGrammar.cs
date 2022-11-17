@@ -10,13 +10,15 @@ namespace Streams.Parsing
             var id = new IdentifierTerminal("ID");
             var comma = ToTerm(",");
             var semicolon = ToTerm(";");
-            var statementDelimiter = semicolon | Empty;
+            var statementDelimiter = new NonTerminal("STATEMENT_DELIMITER");
             var field = new NonTerminal("FIELD");
             var streamName = new NonTerminal("STREAM_NAME");
             var fieldName = new NonTerminal("FIELD_NAME");
             var boolean = ToTerm("AND") | "OR";
             var stringValue = new StringLiteral("STRING", "'", StringOptions.AllowsDoubledQuote);
             var numberValue = new NumberLiteral("NUMBER");
+
+            statementDelimiter.Rule = ToTerm(";") | Empty;
 
             streamName.Rule = id;
             fieldName.Rule = id;
